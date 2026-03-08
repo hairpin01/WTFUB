@@ -1,0 +1,2 @@
+// Version userbot
+const version = '1.0.0.000#beta'
