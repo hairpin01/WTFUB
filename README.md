@@ -61,7 +61,8 @@ module.exports = {
 };
 ```
 
-> [!TIP] [Api doc](https://github.com/hairpin01/WTFUB/blob/main/API_DOC.md)
+> [!TIP]
+> [Api doc](https://github.com/hairpin01/WTFUB/blob/main/API_DOC.md)
 
 ## Project Structure
 
