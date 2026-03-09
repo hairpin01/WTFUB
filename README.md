@@ -1,4 +1,5 @@
 # WTPUB
+| [RU](https://github.com/hairpin01/WTFUB/blob/main/README-ru.md) |
 
 WhatsApp Userbot for Node.js with modular command system.
 
@@ -59,6 +60,9 @@ module.exports = {
     }
 };
 ```
+
+> [!TIP]
+> [Api doc](https://github.com/hairpin01/WTFUB/blob/main/API_DOC.md)
 
 ## Project Structure
 
