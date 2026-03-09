@@ -3,7 +3,8 @@ const Userbot = require('./src/core');
 const bot = new Userbot({
     prefix: '.',
     sessionPath: './session',
-    modulesPath: './src/modules'
+    modulesPath: './src/modules',
+    respondToSelf: true
 });
 
 bot.start().catch(console.error);
