@@ -2,6 +2,24 @@ const fs   = require('fs');
 const path = require('path');
 const os   = require('os');
 
+/**
+ * If a module with the same name is already loaded — unload it first.
+ * Returns 'updated' | 'loaded'.
+ */
+async function upsertModule(bot, modulePath) {
+    const loaded = await bot.loadModule(modulePath);
+    if (!loaded) return null;
+
+    const existing = bot.getModule(loaded.name);
+    if (existing) {
+        await bot.unloadModule(loaded.name);
+        bot._registerModule(loaded.name, loaded.module, false);
+        return { ...loaded, action: 'updated' };
+    }
+
+    return { ...loaded, action: 'loaded' };
+}
+
 module.exports = {
     name: 'loader',
     version: '1.0.0',
@@ -36,9 +54,9 @@ module.exports = {
 
                 try {
                     fs.writeFileSync(tmpPath, Buffer.from(media.data, 'base64').toString('utf8'));
-                    const loaded = await bot.loadModule(tmpPath);
+                    const result = await upsertModule(bot, tmpPath);
 
-                    if (!loaded) {
+                    if (!result) {
                         fs.unlinkSync(tmpPath);
                         return msg.reply('❌ Failed to load module. Check the file for errors.');
                     }
@@ -50,7 +68,8 @@ module.exports = {
                     fs.copyFileSync(tmpPath, dest);
                     fs.unlinkSync(tmpPath);
 
-                    return msg.reply(`✅ Module *${loaded.name || safeName}* loaded.`);
+                    const verb = result.action === 'updated' ? 'updated' : 'loaded';
+                    return msg.reply(`✅ Module *${result.name || safeName}* ${verb}.`);
                 } catch (err) {
                     if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
                     return msg.reply(`❌ Error: ${err.message}`);
@@ -99,14 +118,15 @@ module.exports = {
 
                 try {
                     fs.writeFileSync(dest, code, 'utf8');
-                    const loaded = await bot.loadModule(dest);
+                    const result = await upsertModule(bot, dest);
 
-                    if (!loaded) {
+                    if (!result) {
                         fs.unlinkSync(dest);
                         return msg.reply('❌ File downloaded but module failed to load. Check the code.');
                     }
 
-                    return msg.reply(`✅ Module *${loaded.name || safeName}* loaded from URL.`);
+                    const verb = result.action === 'updated' ? 'updated' : 'loaded';
+                    return msg.reply(`✅ Module *${result.name || safeName}* ${verb} from URL.`);
                 } catch (err) {
                     if (fs.existsSync(dest)) fs.unlinkSync(dest);
                     return msg.reply(`❌ Error: ${err.message}`);
@@ -122,7 +142,7 @@ module.exports = {
                     await msg.reply('⏳ Reloading all modules...');
 
                     // Unload all user modules
-                    const names = [...bot.modules_loaded.keys()];
+                    const names = [...bot.userModules.keys()];
                     for (const name of names) {
                         await bot.unloadModule(name);
                     }
@@ -130,7 +150,7 @@ module.exports = {
                     // Re-load from disk
                     await bot.loadModules();
 
-                    return msg.reply(`✅ Reloaded ${bot.modules_loaded.size} module(s).`);
+                    return msg.reply(`✅ Reloaded ${bot.userModules.size} module(s).`);
                 }
 
                 // reload one

@@ -15,14 +15,14 @@ module.exports = {
                 const nodeVer  = process.version;
                 const platform = `${os.type()} ${os.release()} (${os.arch()})`;
 
-                const systemCount = bot.modules.size;
-                const userCount   = bot.modules_loaded.size;
+                const systemCount = bot.systemModules.size;
+                const userCount   = bot.userModules.size;
                 const cmdCount    = bot.commands.size;
 
                 // List user modules with versions
-                const userModules = [...bot.modules_loaded.values()]
-                    .map(m => `${m.name} v${m.version || '1.0.0'}`)
-                    .join(', ') || 'none';
+                const userModules = [...bot.userModules.values()]
+                .map(m => `${m.name} v${m.version || '1.0.0'}`)
+                .join(', ') || 'none';
 
                 const lines = [
                     `🧬 *WTF Userbot*\n`,
